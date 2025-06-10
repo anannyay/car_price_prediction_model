@@ -4,3 +4,5 @@ scikit-learn
 flask
 pickle-mixin
 streamlit
+uvicorn
+fastapi
