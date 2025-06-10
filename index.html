@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PriceMyCar - Car Price Predictor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Homepage Styles */
+        .homepage {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-section {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: #b0b0b0;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .cta-button {
+            padding: 20px 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            background: white;
+            border: none;
+            border-radius: 50px;
+            color: black;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.4);
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.6);
+            background: #f0f0f0;
+        }
+
+        /* Animated Cars Background */
+        .car-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .car {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.1;
+            animation: driveCar 15s linear infinite;
+        }
+
+        .car:nth-child(1) { top: 20%; animation-delay: 0s; }
+        .car:nth-child(2) { top: 40%; animation-delay: 5s; }
+        .car:nth-child(3) { top: 60%; animation-delay: 10s; }
+        .car:nth-child(4) { top: 80%; animation-delay: 3s; }
+
+        /* Floating Elements */
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.3;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-icon:nth-child(2) { top: 20%; right: 15%; animation-delay: 2s; }
+        .floating-icon:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 4s; }
+        .floating-icon:nth-child(4) { bottom: 20%; right: 10%; animation-delay: 1s; }
+
+        /* Form Page Styles */
+        .form-page {
+            display: none;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        .input-hint {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 0.3rem;
+            font-style: italic;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+        }
+
+        /* Enhanced validation styles */
+        .form-input:valid {
+            border-color: #4ecdc4;
+        }
+
+        .form-input:invalid:not(:placeholder-shown) {
+            border-color: #ff4757;
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+        }
+
+        .form-input::placeholder {
+            color: #888;
+        }
+
+        /* Validation message styles */
+        .validation-message {
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .validation-message.error {
+            color: #ff4757;
+            opacity: 1;
+        }
+
+        .validation-message.success {
+            color: #4ecdc4;
+            opacity: 1;
+        }
+
+        .predict-button {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.4);
+        }
+
+        .predict-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(78, 205, 196, 0.6);
+        }
+
+        .predict-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .prediction-result {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .prediction-value {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .prediction-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Animations */
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes driveCar {
+            0% { transform: translateX(-100px) rotate(0deg); }
+            100% { transform: translateX(calc(100vw + 100px)) rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #4ecdc4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Homepage -->
+    <div class="homepage" id="homepage">
+        <div class="car-animation">
+            <div class="car">🚗</div>
+            <div class="car">🚙</div>
+            <div class="car">🚕</div>
+            <div class="car">🏎️</div>
+        </div>
+        
+        <div class="floating-elements">
+            <div class="floating-icon">⚙️</div>
+            <div class="floating-icon">🔧</div>
+            <div class="floating-icon">💎</div>
+            <div class="floating-icon">⭐</div>
+        </div>
+        
+        <div class="hero-section">
+            <h1 class="hero-title">PriceMyCar AI</h1>
+            <p class="hero-subtitle">Predict Your Car's True Value with Machine Learning Precision</p>
+            <button class="cta-button" onclick="showFormPage()">Get Price Prediction</button>
+        </div>
+    </div>
+
+    <!-- Form Page -->
+    <div class="form-page" id="formPage">
+        <button class="back-button" onclick="showHomePage()">← Back to Home</button>
+        
+        <div class="form-container">
+            <div class="form-header">
+                <h2 class="form-title">Car Price Prediction</h2>
+                <p>Enter your car details to get an AI-powered price prediction</p>
+            </div>
+            
+            <form id="predictionForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Car Brand</label>
+                        <div class="input-hint">Enter your car's brand name</div>
+                        <input type="text" class="form-input" name="Brand" placeholder="e.g., Maruti, Honda, Toyota" required>
+                        <div class="validation-message" id="brand-message"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <select class="form-select" name="Location" required>
+                            <option value="">Select Location</option>
+                            <option value="Mumbai">Mumbai</option>
+                            <option value="Pune">Pune</option>
+                            <option value="Chennai">Chennai</option>
+                            <option value="Coimbatore">Coimbatore</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                            <option value="Jaipur">Jaipur</option>
+                            <option value="Kochi">Kochi</option>
+                            <option value="Kolkata">Kolkata</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Bangalore">Bangalore</option>
+                            <option value="Ahmedabad">Ahmedabad</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Car Age</label>
+                        <div class="input-hint">Age of the car in years (0-30)</div>
+                        <input type="number" class="form-input" name="Car_Age" placeholder="e.g., 5" min="0" max="30" required>
+                        <div class="validation-message" id="age-message"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Kilometers Driven</label>
+                        <div class="input-hint">Total distance covered (0-500,000 km)</div>
+                        <input type="number" class="form-input" name="Kilometers_Driven" placeholder="e.g., 45000" min="0" max="500000" required>
+                        <div class="validation-message" id="km-message"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Fuel Type</label>
+                        <select class="form-select" name="Fuel_Type" required>
+                            <option value="">Select Fuel Type</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="Petrol">Petrol</option>
+                            <option value="CNG">CNG</option>
+                            <option value="LPG">LPG</option>
+                            <option value="Electric">Electric</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Transmission</label>
+                        <select class="form-select" name="Transmission" required>
+                            <option value="">Select Transmission</option>
+                            <option value="Manual">Manual</option>
+                            <option value="Automatic">Automatic</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Owner Type</label>
+                        <select class="form-select" name="Owner_Type" required>
+                            <option value="">Select Owner Type</option>
+                            <option value="First">First</option>
+                            <option value="Second">Second</option>
+                            <option value="Third">Third</option>
+                            <option value="Fourth & Above">Fourth & Above</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Mileage</label>
+                        <div class="input-hint">Fuel efficiency (8-35 kmpl)</div>
+                        <input type="number" class="form-input" name="Mileage" placeholder="e.g., 23.4" min="8" max="35" step="0.1" required>
+                        <div class="validation-message" id="mileage-message"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Engine</label>
+                        <div class="input-hint">Engine capacity (800-5000 CC)</div>
+                        <input type="number" class="form-input" name="Engine" placeholder="e.g., 1248" min="800" max="5000" step="0.1" required>
+                        <div class="validation-message" id="engine-message"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Power</label>
+                        <div class="input-hint">Engine power (40-500 bhp)</div>
+                        <input type="number" class="form-input" name="Power" placeholder="e.g., 88.5" min="40" max="500" step="0.1" required>
+                        <div class="validation-message" id="power-message"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Seats</label>
+                        <select class="form-select" name="Seats" required>
+                            <option value="">Select Seats</option>
+                            <option value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="predict-button" id="submitBtn">Predict Car Price</button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your car details...</p>
+            </div>
+            
+            <div class="prediction-result" id="predictionResult">
+                <div class="prediction-value" id="predictionValue">₹0</div>
+                <div class="prediction-label">Predicted Car Price</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showFormPage() {
+            document.getElementById('homepage').style.display = 'none';
+            document.getElementById('formPage').style.display = 'block';
+        }
+
+        function showHomePage() {
+            document.getElementById('homepage').style.display = 'flex';
+            document.getElementById('formPage').style.display = 'none';
+            document.getElementById('predictionResult').style.display = 'none';
+        }
+
+        // Enhanced validation function
+        function validateInput(input, min, max, fieldName) {
+            const value = parseFloat(input.value);
+            const messageEl = document.getElementById(input.name.toLowerCase().replace('_', '') + '-message');
+            
+            if (!input.value) {
+                if (messageEl) {
+                    messageEl.textContent = '';
+                    messageEl.className = 'validation-message';
+                }
+                return false;
+            }
+            
+            if (isNaN(value) || value < min || value > max) {
+                if (messageEl) {
+                    messageEl.textContent = `${fieldName} should be between ${min} and ${max}`;
+                    messageEl.className = 'validation-message error';
+                }
+                return false;
+            } else {
+                if (messageEl) {
+                    messageEl.textContent = `✓ Valid ${fieldName.toLowerCase()}`;
+                    messageEl.className = 'validation-message success';
+                }
+                return true;
+            }
+        }
+
+        // Add real-time validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const ageInput = document.querySelector('input[name="Car_Age"]');
+            const kmInput = document.querySelector('input[name="Kilometers_Driven"]');
+            const mileageInput = document.querySelector('input[name="Mileage"]');
+            const engineInput = document.querySelector('input[name="Engine"]');
+            const powerInput = document.querySelector('input[name="Power"]');
+
+            if (ageInput) ageInput.addEventListener('input', () => validateInput(ageInput, 0, 30, 'Car Age'));
+            if (kmInput) kmInput.addEventListener('input', () => validateInput(kmInput, 0, 500000, 'Kilometers'));
+            if (mileageInput) mileageInput.addEventListener('input', () => validateInput(mileageInput, 8, 35, 'Mileage'));
+            if (engineInput) engineInput.addEventListener('input', () => validateInput(engineInput, 800, 5000, 'Engine capacity'));
+            if (powerInput) powerInput.addEventListener('input', () => validateInput(powerInput, 40, 500, 'Power'));
+        });
+
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Convert numeric fields to proper types
+            data.Car_Age = parseInt(data.Car_Age);
+            data.Kilometers_Driven = parseInt(data.Kilometers_Driven);
+            data.Mileage = parseFloat(data.Mileage);
+            data.Engine = parseFloat(data.Engine);
+            data.Power = parseFloat(data.Power);
+            data.Seats = parseFloat(data.Seats);
+            
+            console.log('📤 Sending data:', data);
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('predictionResult').style.display = 'none';
+            document.getElementById('submitBtn').disabled = true;
+            
+            try {
+                console.log('🔄 Making API request...');
+                
+                const response = await fetch('http://127.0.0.1:8000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                const result = await response.json();
+                console.log('📥 Response data:', result);
+                
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+                
+                if (response.ok && result.predicted_price) {
+                    // Show prediction result
+                    document.getElementById('predictionValue').textContent = `₹${result.predicted_price.toLocaleString('en-IN')} Lakhs`;
+                    document.getElementById('predictionResult').style.display = 'block';
+                    
+                    // Smooth scroll to result
+                    document.getElementById('predictionResult').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    // Show detailed error
+                    const errorMsg = result.detail || result.error || 'Failed to get prediction';
+                    console.error('❌ API Error:', errorMsg);
+                    
+                    // Create a more user-friendly error display
+                    if (typeof errorMsg === 'object') {
+                        alert(`Error: ${errorMsg.error || 'Unknown error occurred'}\n\nPlease check the browser console for more details.`);
+                    } else {
+                        alert(`Error: ${errorMsg}`);
+                    }
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+                console.error('❌ Network Error:', error);
+                
+                // Check if server is running
+                try {
+                    const healthCheck = await fetch('http://127.0.0.1:8000/');
+                    if (!healthCheck.ok) {
+                        alert('Server is running but returned an error. Please check the server logs.');
+                    }
+                } catch (healthError) {
+                    alert('❌ Cannot connect to server!\n\nPlease make sure:\n1. FastAPI server is running on port 8000\n2. Server is accessible at http://127.0.0.1:8000\n3. No firewall is blocking the connection\n4. CORS is properly configured');
+                }
+            }
+        });
+
+        // Test server connection on page load
+        async function testServerConnection() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/');
+                if (response.ok) {
+                    console.log('✅ Server connection successful');
+                } else {
+                    console.warn('⚠️ Server responded with error:', response.status);
+                }
+            } catch (error) {
+                console.warn('⚠️ Could not connect to server:', error.message);
+            }
+        }
+
+        // Test connection when form page is shown
+        const originalShowFormPage = showFormPage;
+        showFormPage = function() {
+            originalShowFormPage();
+            testServerConnection();
+        };
+
+        // Add some interactive effects
+        document.addEventListener('mousemove', function(e) {
+            const cars = document.querySelectorAll('.car');
+            cars.forEach((car, index) => {
+                const speed = (index + 1) * 0.01;
+                const x = e.clientX * speed;
+                const y = e.clientY * speed;
+                car.style.transform += ` translate(${x}px, ${y}px)`;
+            });
+        });
+
+        // Form validation and enhancement
+        const inputs = document.querySelectorAll('.form-input, .form-select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.parentElement.style.transition = 'transform 0.3s ease';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
